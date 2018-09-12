@@ -1,0 +1,85 @@
+version: 2
+
+defaults-test-php: &defaults-test-php
+  working_directory: ~/circle-tests
+  docker:
+    - image: octoblu/alpine-ca-certificates
+
+defaults-build-php: &defaults-build-php
+  working_directory: ~/circle-tests
+  docker:
+    - image: octoblu/alpine-ca-certificates
+
+defaults-js: &defaults-js
+  working_directory: ~/circle-tests
+  docker:
+    - image: octoblu/alpine-ca-certificates
+
+jobs:
+  test-php:
+    <<: *defaults-test-php
+    steps:
+      - checkout
+
+  test-js:
+    <<: *defaults-js
+    steps:
+      - checkout
+
+  build-php:
+    <<: *defaults-build-php
+    steps:
+      - checkout     
+
+  build-js-staging:
+    <<: *defaults-js
+    steps:
+      - checkout
+
+  build-js-production:
+    <<: *defaults-js
+    steps:
+      - checkout
+
+  deploy:
+    working_directory: ~/circle-tests
+    docker:
+      - image: octoblu/alpine-ca-certificates
+    steps:
+      - checkout
+
+workflows:
+  version: 2
+
+  build_test_coverage_and_deploy:
+    jobs:
+      - test-php
+      - test-js
+      - build-php:
+          requires:
+            - test-php
+            - test-js
+          filters:
+            branches:
+              only: develop
+      - build-js-staging:
+          requires:
+            - test-php
+            - test-js
+          filters:
+            branches:
+              only: develop
+      - build-js-production:
+          requires:
+            - test-php
+            - test-js
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - build-php
+            - build-js-staging
+          filters:
+            branches:
+              only: develop
