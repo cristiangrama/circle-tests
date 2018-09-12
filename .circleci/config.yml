@@ -88,6 +88,13 @@ workflows:
           filters:
             branches:
               only: develop
+      - build-js-production:
+          requires:
+            - test-php
+            - test-js
+          filters:
+            branches:
+              only: master
       - deploy:
           requires:
             - build-php
@@ -95,10 +102,10 @@ workflows:
           filters:
             branches:
               only: develop
-      - build-js-production:
+      - deploy:
           requires:
-            - test-php
-            - test-js
+            - build-php
+            - build-js-staging
           filters:
             branches:
               only: master
