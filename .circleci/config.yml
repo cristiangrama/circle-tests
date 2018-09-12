@@ -61,7 +61,9 @@ workflows:
             - test-js
           filters:
             branches:
-              only: develop
+              only: 
+                - develop
+                - master
       - build-js-staging:
           requires:
             - test-php
