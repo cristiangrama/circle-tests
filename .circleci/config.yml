@@ -3,69 +3,50 @@ version: 2
 defaults-test-php: &defaults-test-php
   working_directory: ~/circle-tests
   docker:
-    - image: php:7.2.5-cli
+    - image: octoblu/alpine-ca-certificates
 
 defaults-build-php: &defaults-build-php
   working_directory: ~/circle-tests
   docker:
-    - image: php:7.2.5-cli
+    - image: octoblu/alpine-ca-certificates
 
 defaults-js: &defaults-js
   working_directory: ~/circle-tests
   docker:
-    - image: circleci/node:8.11.1-browsers
-
+    - image: octoblu/alpine-ca-certificates
 
 jobs:
   test-php:
     <<: *defaults-test-php
     steps:
       - checkout
-      - run:
-          name: test php
-          command: php -v
 
   test-js:
     <<: *defaults-js
     steps:
       - checkout
-      - run:
-          name: test js
-          command: npm -v
 
   build-php:
     <<: *defaults-build-php
     steps:
-      - checkout
-      - run:
-          name: build php
-          command: php -v
-     
+      - checkout     
 
   build-js-staging:
     <<: *defaults-js
     steps:
       - checkout
-      - run:
-          name: build js staging
-          command: npm -v
 
   build-js-production:
     <<: *defaults-js
     steps:
       - checkout
-      - run:
-          name: build js production
-          command: npm -v
 
   deploy:
     working_directory: ~/circle-tests
     docker:
       - image: octoblu/alpine-ca-certificates
     steps:
-      - run:
-          name: deploy
-          command: mkdir -p ~/circle-tests/deploy
+      - checkout
 
 workflows:
   version: 2
@@ -95,17 +76,10 @@ workflows:
           filters:
             branches:
               only: master
-      - deploy-staging:
+      - deploy:
           requires:
             - build-php
             - build-js-staging
           filters:
             branches:
               only: develop
-      - deploy-production:
-          requires:
-            - build-php
-            - build-js-staging
-          filters:
-            branches:
-              only: master
