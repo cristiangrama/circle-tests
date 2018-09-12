@@ -1,0 +1,112 @@
+version: 2
+
+
+defaults-test-php: &defaults-test-php
+  working_directory: ~/circle-tests
+  docker:
+    - image: php:7.2.5-cli
+
+defaults-build-php: &defaults-build-php
+  working_directory: ~/circle-tests
+  docker:
+    - image: php:7.2.5-cli
+
+defaults-js: &defaults-js
+  working_directory: ~/circle-tests
+  docker:
+    - image: circleci/node:8.11.1-browsers
+
+
+jobs:
+  test-php:
+    <<: *defaults-test-php
+    steps:
+      - checkout
+      - run:
+          name: test php
+          command: php -v
+
+  test-js:
+    <<: *defaults-js
+    steps:
+      - checkout
+      - run:
+          name: test js
+          command: npm -v
+
+  build-php:
+    <<: *defaults-build-php
+    steps:
+      - checkout
+      - run:
+          name: build php
+          command: php -v
+     
+
+  build-js-staging:
+    <<: *defaults-js
+    steps:
+      - checkout
+      - run:
+          name: build js staging
+          command: npm -v
+
+  build-js-production:
+    <<: *defaults-js
+    steps:
+      - checkout
+      - run:
+          name: build js production
+          command: npm -v
+
+  deploy:
+    working_directory: ~/circle-tests
+    docker:
+      - image: octoblu/alpine-ca-certificates
+    steps:
+      - run:
+          name: deploy
+          command: mkdir -p ~/circle-tests/deploy
+
+workflows:
+  version: 2
+
+  build_test_coverage_and_deploy:
+    jobs:
+      - test-php
+      - test-js
+      - build-php:
+          requires:
+            - test-php
+            - test-js
+          filters:
+            branches:
+              only: develop
+      - build-js-staging:
+          requires:
+            - test-php
+            - test-js
+          filters:
+            branches:
+              only: develop
+      - deploy:
+          requires:
+            - build-php
+            - build-js-staging
+          filters:
+            branches:
+              only: develop
+      - build-js-production:
+          requires:
+            - test-php
+            - test-js
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - build-php
+            - build-js-production
+          filters:
+            branches:
+              only: master
