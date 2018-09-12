@@ -41,7 +41,14 @@ jobs:
     steps:
       - checkout
 
-  deploy:
+  deploy-staging:
+    working_directory: ~/circle-tests
+    docker:
+      - image: octoblu/alpine-ca-certificates
+    steps:
+      - checkout
+      
+  deploy-production:
     working_directory: ~/circle-tests
     docker:
       - image: octoblu/alpine-ca-certificates
@@ -78,14 +85,14 @@ workflows:
           filters:
             branches:
               only: master
-      - deploy:
+      - deploy-staging:
           requires:
             - build-php
             - build-js-staging
           filters:
             branches:
               only: develop
-      - deploy:
+      - deploy-production:
           requires:
             - build-php
             - build-js-production
