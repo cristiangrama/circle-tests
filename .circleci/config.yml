@@ -95,14 +95,14 @@ workflows:
           filters:
             branches:
               only: master
-      - deploy:
+      - deploy-staging:
           requires:
             - build-php
             - build-js-staging
           filters:
             branches:
               only: develop
-      - deploy:
+      - deploy-production:
           requires:
             - build-php
             - build-js-staging
