@@ -85,6 +85,12 @@ workflows:
           filters:
             branches:
               only: develop
-
+      - deploy:
+          requires:
+            - build-php
+            - build-js-production
+          filters:
+            branches:
+              only: master
 
 
