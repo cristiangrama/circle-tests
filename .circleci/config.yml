@@ -1,6 +1,5 @@
 version: 2
 
-
 defaults-test-php: &defaults-test-php
   working_directory: ~/circle-tests
   docker:
